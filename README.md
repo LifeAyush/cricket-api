@@ -1,137 +1,95 @@
 # Cricket API
 
-This is a backend API for a cricket platform, similar to Cricbuzz. It allows admins to manage matches, players, and teams, and guest users to view match schedules and details.
-
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Database Setup](#database-setup)
-- [Environment Variables](#environment-variables)
-- [API Endpoints and Testing](#api-endpoints-and-testing)
-- [SQL Queries](#sql-queries)
-- [Assumptions](#assumptions)
+This is an interview exercise: a cricket API for matches, players, and teams. Admins manage matches and squads. Guests can view match schedules, match details, and player statistics.
 
 ## Prerequisites
 
-- Node.js (version 14.x or later)
-- PostgreSQL (version 12.x or later)
+- Node.js 14 or later
+- PostgreSQL 12 or later
 
-## Installation
+## Setup
 
-1. Clone the repository:
+```bash
+git clone https://github.com/LifeAyush/cricket-api.git
+cd cricket-api
+npm install
+```
 
-   ```bash
-   git clone https://github.com/LifeAyush/anakin-assignment.git
-   ```
-   
-2. Navigate to the project directory:
+Create a PostgreSQL database, or use the default database named `postgres`. Then run the schema SQL below.
 
-   ```bash
-   cd anakin-assignment
-   ```
+## Environment variables
 
-3. Install Dependencies:
+Create a `.env` file in the project root:
 
-   ```bash
-   npm install
-   ```
+```dotenv
+PORT=3000
+DB_USER=your_postgres_username
+DB_PASSWORD=your_postgres_password
+DB_HOST=localhost
+DB_NAME=your_db_name
+DB_PORT=5432
+JWT_SECRET=your_secret_key
+```
 
-## Database Setup
+## Endpoints
 
-The Cricket API uses PostgreSQL as the database. You'll need to create a new PostgreSQL database and update the connection details in the .env file.
+Protected admin routes need the access token from login as `Authorization: Bearer <token>`.
 
-  1. Create a new PostgreSQL database or use the default database named postgres
-  2. Run the SQL queries provided in the SQL Queries section to create the necessary tables
+### POST /api/admin/signup
 
-## Environment Variables
+```json
+{
+  "username": "Admin123",
+  "password": "pass@123",
+  "email": "admin@gmail.com"
+}
+```
 
-The Cricket API uses environment variables to store sensitive information, such as database credentials and the JWT secret key. Create a .env file in the root directory of the project and add the following variables:
+### POST /api/admin/login
 
-  ```dotenv
-  PORT=3000
-  DB_USER=your_postgres_username
-  DB_PASSWORD=your_postgres_password
-  DB_HOST=localhost
-  DB_NAME=your_db_name
-  DB_PORT=5432
-  JWT_SECRET=your_secret_key
-  ```
-Replace the values with your actual PostgreSQL credentials and a secret key for JWT.
+```json
+{
+  "username": "Admin123",
+  "password": "pass@123"
+}
+```
 
-## API Endpoints and Testing
+### POST /api/admin/matches
 
-The Cricket API provides the following endpoints:
+```json
+{
+  "team1": "India",
+  "team2": "England",
+  "date": "2023-07-10",
+  "venue": "Lord's Cricket Ground"
+}
+```
 
-1. Register Admin: [POST] /api/admin/signup
-   
-   Testing : Use Postman, send a POST request on above url with username, password and email in the body.
+### GET /api/matches
 
-   Sample Body Data :
-   ```json
-   {
-    "username" : "Admin123",
-    "password" : "pass@123",
-    "email" : "admin@gmail.com"
-   }
-   ```
-   
-2. Login Admin: [POST] /api/admin/login
-   
-   Testing: Use Postman, send a POST request on above url with username and password in the body and access token in the autherization bearer token
+Match schedules.
 
-   Sample Body Data :
-   ```json
-   {
-      "username" : "Admin123",
-      "password" : "pass@123"
-   }
-   ```
-   
-3. Create Match: [POST] /api/admin/matches
-   
-   Testing : Use Postman, send a POST request on above url with team1, team2, date, venue in the body and access token in the autherization bearer token
+### GET /api/matches/:matchId
 
-   Sample Body Data :
-   ```json
-   {
-    "team1" : "India",
-    "team2" : "England",
-    "date" : "2023-07-10",
-    "venue" : "Lord's Cricket Ground"
-   }
-   ```
-   
-4. Get Match Schedules: [GET] /api/matches
-   
-   Testing : Use Postman, send a GET request on above url
+Match details.
 
-5. Get Match Details: [GET] /api/matches/:matchId
-   
-   Testing : Use Postman, send a GET request on above url
+### POST /api/admin/teams/:teamId/squad
 
-6. Add a Team Member to a Squad: [POST] /api/admin/teams/:teamId/squad
+```json
+{
+  "name": "Virat Kohli",
+  "role": "batsman"
+}
+```
 
-   Testing : Use Postman, send a POST request on above url with name and role in the body and access token in the autherization bearer token
+### GET /api/players/:playerId/stats
 
-   Sample Body Data :
-   ```json
-   {
-    "name" : "Virat Kohli",
-    "role" : "batsman"
-   }
-   ```
+Player statistics.
 
-7. Get Player Statistics: [GET] /api/players/:playerId/stats
-   
-   Testing : Use Postman, send a GET request on above url
+## Database schema
 
-## SQL Queries
-
-Here are the SQL queries to initialize the database:
-
-  ```sql
-  CREATE TABLE admins (
+```sql
+CREATE TABLE admins (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -175,6 +133,10 @@ CREATE TABLE teams (
 
 ## Assumptions
 
-- The status field in the matches table can have the following values: upcoming, in_progress, completed.
-- The role field in the players table can have values like batsman, bowler, all-rounder, wicket-keeper, etc.
-- The teams table is used to store the players in each team for a match.
+- Match `status` is `upcoming`, `in_progress`, or `completed`.
+- Player `role` is a value such as batsman, bowler, all-rounder, or wicket-keeper.
+- The `teams` table stores the players in each team for a match.
+
+## License
+
+MIT. Copyright (c) 2024 Ayush Patil.
